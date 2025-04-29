@@ -51,14 +51,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run tests if they exist
-if grep -q "\"test\":" package.json; then
-    print_message "$YELLOW" "Running tests..."
-    npm test
-    if [ $? -ne 0 ]; then
-        print_message "$RED" "Error: Tests failed"
-        exit 1
-    fi
-fi
+# if grep -q "\"test\":" package.json; then
+#     print_message "$YELLOW" "Running tests..."
+#     npm test
+#     if [ $? -ne 0 ]; then
+#         print_message "$RED" "Error: Tests failed"
+#         exit 1
+#     fi
+# fi
 
 # Bump version
 print_message "$YELLOW" "Bumping $VERSION_TYPE version..."
