@@ -1,0 +1,44 @@
+{
+  "name": "request-context",
+  "version": "1.0.0",
+  "description": "Minimal async request-scoped context manager for Node.js frameworks",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"No build step required\"",
+    "lint": "eslint src/**/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shravan20/request-context.git"
+  },
+  "keywords": [
+    "nodejs",
+    "asyncLocalStorage",
+    "context",
+    "logger",
+    "request",
+    "tracing",
+    "express",
+    "fastify",
+    "http"
+  ],
+  "author": "@shravan20",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shravan20/request-context/issues"
+  },
+  "homepage": "https://github.com/shravan20/request-context#readme",
+  "dependencies": {
+    "uuid": "^11.1.0"
+  },
+  "peerDependencies": {
+    "express": ">=4.0.0",
+    "fastify": ">=4.0.0"
+  },
+  "devDependencies": {
+    "express": "^4.18.2",
+    "fastify": "^4.24.3"
+  }
+}
