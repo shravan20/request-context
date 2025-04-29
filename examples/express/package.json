@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "request-ctxt": "latest"
+    "request-ctxt": "1.0.1"
   }
 }
