@@ -1,6 +1,6 @@
 {
-  "name": "request-context",
-  "version": "1.0.2",
+  "name": "request-ctxt",
+  "version": "1.0.0",
   "description": "Minimal async request-scoped context manager for Node.js frameworks",
   "main": "src/index.js",
   "type": "module",
@@ -22,7 +22,9 @@
     "tracing",
     "express",
     "fastify",
-    "http"
+    "http",
+    "pino",
+    "winston"
   ],
   "author": "@shravan20",
   "license": "MIT",
@@ -35,10 +37,14 @@
   },
   "peerDependencies": {
     "express": ">=4.0.0",
-    "fastify": ">=4.0.0"
+    "fastify": ">=4.0.0",
+    "pino": ">=8.0.0",
+    "winston": ">=3.0.0"
   },
   "devDependencies": {
     "express": "^4.18.2",
-    "fastify": "^4.24.3"
+    "fastify": "^4.24.3",
+    "pino": "^8.16.0",
+    "winston": "^3.11.0"
   }
 }

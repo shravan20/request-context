@@ -127,6 +127,20 @@ The following context values are automatically added to every request:
 - `userId`: User ID (if available)
 - Any additional values from getExtra()
 
+## Examples
+
+Check out the [examples](./examples) directory for complete working examples using:
+- Express
+- Fastify
+- Native HTTP Server
+
+Each example demonstrates:
+- Middleware setup
+- Logger configuration
+- Request handling
+- Error handling
+- Context propagation
+
 ## Publishing
 
 A publish script is included to help with releasing new versions. The script handles:
