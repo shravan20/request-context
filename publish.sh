@@ -42,7 +42,7 @@ fi
 
 # Login to npm
 print_message "$YELLOW" "Logging in to npm..."
-npm login
+# npm login
 
 # Check if login was successful
 if [ $? -ne 0 ]; then
