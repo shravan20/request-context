@@ -4,6 +4,11 @@
   "description": "Minimal async request-scoped context manager for Node.js frameworks",
   "main": "src/index.js",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": ".src/index.js"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "echo \"No build step required\"",
