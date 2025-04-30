@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import contextManager from '../context-manager';
+import contextManager from '../context-manager.js';
 
 const defaultOptions = {
     requestIdHeader: 'x-request-id',
