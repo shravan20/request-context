@@ -3,8 +3,7 @@ import contextManager from '../context-manager.js';
 
 const defaultOptions = {
     requestIdHeader: 'x-request-id',
-    getUserId: req => req.user?.id,
-    getExtra: () => ({})
+    getContext: () => ({})
 };
 
 function expressMiddleware(options = {}) {
@@ -12,21 +11,14 @@ function expressMiddleware(options = {}) {
 
     return (req, res, next) => {
         const requestId = req.headers[config.requestIdHeader] || uuid();
-        const userId = config.getUserId(req);
-        const extra = config.getExtra(req);
 
         contextManager.run(() => {
-            // Set standard context values
+            // Always set requestId as it's required for tracing
             contextManager.set('requestId', requestId);
-            contextManager.set('path', req.path);
-            contextManager.set('method', req.method);
-            
-            if (userId) {
-                contextManager.set('userId', userId);
-            }
 
-            // Set any extra context from options
-            Object.entries(extra).forEach(([key, value]) => {
+            // Get additional context from options
+            const extraContext = config.getContext(req);
+            Object.entries(extraContext).forEach(([key, value]) => {
                 contextManager.set(key, value);
             });
 

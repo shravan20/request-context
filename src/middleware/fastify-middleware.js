@@ -3,8 +3,7 @@ import contextManager from '../context-manager.js';
 
 const defaultOptions = {
     requestIdHeader: 'x-request-id',
-    getUserId: request => request.user?.id,
-    getExtra: () => ({})
+    getContext: () => ({})
 };
 
 function fastifyMiddleware(options = {}) {
@@ -12,21 +11,14 @@ function fastifyMiddleware(options = {}) {
 
     return (request, reply, done) => {
         const requestId = request.headers[config.requestIdHeader] || uuid();
-        const userId = config.getUserId(request);
-        const extra = config.getExtra(request);
 
         contextManager.run(() => {
-            // Set standard context values
+            // Always set requestId as it's required for tracing
             contextManager.set('requestId', requestId);
-            contextManager.set('path', request.url);
-            contextManager.set('method', request.method);
 
-            if (userId) {
-                contextManager.set('userId', userId);
-            }
-
-            // Set any extra context from options
-            Object.entries(extra).forEach(([key, value]) => {
+            // Get additional context from options
+            const extraContext = config.getContext(request);
+            Object.entries(extraContext).forEach(([key, value]) => {
                 contextManager.set(key, value);
             });
 
