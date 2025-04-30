@@ -10,8 +10,12 @@ logger.configure(console);
 app.use(expressMiddleware({
     // Optional configuration
     requestIdHeader: 'x-request-id',
-    getUserId: req => req.user?.id,
-    getExtra: req => ({
+    // New getContext function that can return any context fields
+    getContext: req => ({
+        // These are now optional and configurable
+        path: req.path,
+        method: req.method,
+        userId: req.user?.id,
         ip: req.ip,
         userAgent: req.headers['user-agent']
     })
