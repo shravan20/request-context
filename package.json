@@ -1,6 +1,6 @@
 {
   "name": "request-ctxt",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Minimal async request-scoped context manager for Node.js frameworks",
   "main": "src/index.js",
   "type": "module",
