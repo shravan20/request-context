@@ -1,86 +1,112 @@
-# Roadmap for Framework-Agnostic Request Context Implementation
+# Request Context - 3 Month Roadmap
 
-## Core Implementation Steps
+## Core Enhancements
 
-1. Create base middleware factory with common options:
+### TypeScript Migration
 
-```js
-function createMiddleware(options = {}) {
-  return {
-    requestIdHeader: options.requestIdHeader || 'x-request-id',
-    getUserId: options.getUserId || (req => req.user?.id),
-    getExtra: options.getExtra || (() => ({}))
-  }
-}
-```
+- [ ] Convert core files to TypeScript
+- [ ] Add type definitions for all APIs
+- [ ] Add generic type support for context data
+- [ ] Implement type inference for context values
+- [ ] Add JSDoc comments for better IDE support
 
-2. Express Middleware Implementation:
+### Context Validation & Schema Support
 
-```js
-function expressMiddleware(options) {
-  const config = createMiddleware(options);
-  return (req, res, next) => {
-    const requestId = req.headers[config.requestIdHeader] || uuid();
-    contextManager.run(() => {
-      contextManager.set('requestId', requestId);
-      contextManager.set('path', req.path);
-      // ... set other context
-      next();
-    });
-  }
-}
-```
+- [ ] Add schema validation for context data
+- [ ] Implement required field validation
+- [ ] Add type checking at runtime
+- [ ] Support custom validation rules
+- [ ] Add validation error handling
 
-3. Fastify Middleware Implementation:
+## Framework Support & Performance
 
-```js
-function fastifyMiddleware(options) {
-  const config = createMiddleware(options);
-  return (request, reply, done) => {
-    const requestId = request.headers[config.requestIdHeader] || uuid();
-    contextManager.run(() => {
-      contextManager.set('requestId', requestId);
-      contextManager.set('path', request.url);
-      // ... set other context
-      done();
-    });
-  }
-}
-```
+### Additional Framework Support
 
-4. Native HTTP Middleware Implementation:
+- [ ] Add Koa.js middleware
+- [ ] Add Nest.js integration
+- [ ] Add GraphQL context support
+- [ ] Create framework-agnostic adapter interface
 
-```js
-function httpMiddleware(options) {
-  const config = createMiddleware(options);
-  return (req, res, next) => {
-    const requestId = req.headers[config.requestIdHeader] || uuid();
-    contextManager.run(() => {
-      contextManager.set('requestId', requestId);
-      contextManager.set('path', req.url);
-      // ... set other context
-      next();
-    });
-  }
-}
-```
+### Performance Optimizations
 
-## Implementation Order
+- [ ] Implement context pooling
+- [ ] Add lazy context initialization
+- [ ] Optimize memory usage
+- [ ] Add performance benchmarks
+- [ ] Create performance testing suite
 
-1. Create middleware directory structure
-2. Implement common middleware factory
-3. Implement Express middleware
-4. Implement Fastify middleware  
-5. Implement HTTP middleware
-6. Update exports
-7. Add tests
-8. Update documentation
+## Advanced Features & Developer Experience
 
-## Key Considerations
+### Context Events & Lifecycle
 
-- Keep consistent interface across all frameworks
-- Allow customization through options
-- Handle errors appropriately
-- Clean up context after request completion
-- Generate request IDs if not provided
-- Extract common request data (path, method, etc)
+- [ ] Add context lifecycle events
+- [ ] Implement event subscription system
+- [ ] Add context cleanup hooks
+- [ ] Support custom event triggers
+- [ ] Add event filtering capabilities
+
+### Developer Tools & Documentation
+
+- [ ] Create context debugging utilities
+- [ ] Add context visualization tools
+- [ ] Enhance error messages
+- [ ] Create interactive documentation
+- [ ] Add more integration examples
+
+## Priority Features
+
+1. **TypeScript Support**
+   - Essential for better IDE support
+   - Improves developer experience
+   - Enables better type safety
+
+2. **Context Validation**
+   - Prevents invalid context data
+   - Improves error handling
+   - Supports business rules enforcement
+
+3. **Framework Support**
+   - Expands usability
+   - Supports more use cases
+   - Increases adoption potential
+
+4. **Performance Optimizations**
+   - Reduces memory usage
+   - Improves response times
+   - Handles high-load scenarios
+
+5. **Context Events**
+   - Enables better integrations
+   - Supports advanced use cases
+   - Improves debugging capabilities
+
+## Future Considerations
+
+### Features
+
+- Distributed context support for microservices
+- Custom storage providers (Redis, MongoDB)
+- Context versioning and rollback
+- Multi-tenant support
+- Security features (encryption, access control)
+
+### Long-term Vision
+
+- Become the standard for request context management in Node.js
+- Build a robust ecosystem of integrations
+- Maintain minimal core with extensible architecture
+- Focus on performance and reliability
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+
+- How to submit features
+- Code style guidelines
+- Testing requirements
+- Documentation standards
+
+This roadmap is a living document and will be updated based on:
+
+- Technical feasibility
+- Industry trends

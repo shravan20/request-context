@@ -1,8 +1,7 @@
-import contextManager from './context-manager.js';
+import { contextManager } from 'request-ctxt';
 
-// This is just a basic example of how to use context in logging
-// Users should implement their own logging integration
-const logger = {
+// Example of a basic context-aware logger
+export const logger = {
     info: (msg, extra = {}) => {
         console.info({ ...contextManager.getAll(), ...extra, message: msg });
     },
@@ -16,5 +15,3 @@ const logger = {
         console.debug({ ...contextManager.getAll(), ...extra, message: msg });
     }
 };
-
-export default logger;

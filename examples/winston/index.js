@@ -1,11 +1,11 @@
 import express from 'express';
 import winston from 'winston';
-import { expressMiddleware, logger } from 'request-ctxt';
+import { expressMiddleware, contextManager } from 'request-ctxt';
 
 const app = express();
 
-// Configure Winston logger
-const winstonLogger = winston.createLogger({
+// Setup your Winston logger as you normally would
+const logger = winston.createLogger({
     level: 'debug',
     format: winston.format.combine(
         winston.format.timestamp(),
@@ -21,14 +21,21 @@ const winstonLogger = winston.createLogger({
     ]
 });
 
-// Configure our context-aware logger with Winston
-logger.configure(winstonLogger);
+// Create a context-aware log method
+const log = {
+    info: (msg, extra = {}) => logger.info(msg, { ...contextManager.getAll(), ...extra }),
+    error: (msg, extra = {}) => logger.error(msg, { ...contextManager.getAll(), ...extra }),
+    warn: (msg, extra = {}) => logger.warn(msg, { ...contextManager.getAll(), ...extra }),
+    debug: (msg, extra = {}) => logger.debug(msg, { ...contextManager.getAll(), ...extra })
+};
 
-// Add the middleware
+// Add the middleware for context management
 app.use(expressMiddleware({
     requestIdHeader: 'x-request-id',
-    getUserId: req => req.user?.id,
-    getExtra: req => ({
+    getContext: req => ({
+        path: req.path,
+        method: req.method,
+        userId: req.user?.id,
         ip: req.ip,
         userAgent: req.headers['user-agent']
     })
@@ -36,13 +43,13 @@ app.use(expressMiddleware({
 
 // Example routes
 app.get('/', (req, res) => {
-    logger.info('Handling root request');
-    logger.debug('Debug information', { someKey: 'someValue' });
+    log.info('Handling root request');
+    log.debug('Debug information', { someKey: 'someValue' });
     res.json({ message: 'Hello from Express with Winston!' });
 });
 
 app.get('/error', (req, res) => {
-    logger.error('Something went wrong', { 
+    log.error('Something went wrong', { 
         error: new Error('Test error'),
         additionalInfo: 'Some context'
     });
@@ -51,5 +58,5 @@ app.get('/error', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    logger.info(`Express server with Winston listening on port ${PORT}`);
+    log.info('Express server started', { port: PORT });
 });

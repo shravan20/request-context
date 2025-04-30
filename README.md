@@ -1,253 +1,107 @@
 # Request Context
 
-A lightweight, flexible Node.js library for managing per-request context and automatic logger enhancement. Perfect for tracing requests and maintaining contextual information across your application.
+A robust Node.js framework for request context management. Maintain request-scoped context across your entire application stack - from web handlers to database calls, logging, metrics, and more.
 
-## Features
+## Core Features
 
-- 🔍 **Automatic Request Tracing** - Every request gets a unique trace ID
-- 🎯 **Per-Request Context** - Isolated context for each request using AsyncLocalStorage
-- 🔌 **Framework Agnostic** - Supports Express, Fastify, and native HTTP
-- 📝 **Logger Integration** - Works with popular loggers (Pino, Winston, Console)
-- 🎨 **Flexible Context** - Customize what context you want to capture
+- 🎯 **Request-Scoped Storage** - Isolated context for each request using AsyncLocalStorage
+- 🔍 **Automatic Request Tracing** - Built-in request ID generation and propagation
+- 🔌 **Framework Agnostic** - First-class support for Express, Fastify, and native HTTP
 - 🏃 **High Performance** - Minimal overhead using Node.js built-in features
+- 🎨 **Flexible Context** - Store and access any data across your request lifecycle
 - 🔒 **Type Safe** - Written in JavaScript with JSDoc comments
-
-## Installation
-
-```bash
-npm install request-ctxt
-# or
-yarn add request-ctxt
-# or
-pnpm add request-ctxt
-```
+- 🧩 **Middleware Ready** - Easy integration with existing middleware chains
 
 ## Quick Start
 
+```bash
+npm install request-ctxt
+```
+
 ```javascript
 import express from 'express';
-import { expressMiddleware, logger } from 'request-ctxt';
+import { expressMiddleware, contextManager } from 'request-ctxt';
 
 const app = express();
 
-// Add the middleware early in your chain
+// Add context middleware
 app.use(expressMiddleware({
     getContext: req => ({
         path: req.path,
-        userId: req.user?.id,
-        ip: req.ip
+        userId: req.user?.id
     })
 }));
 
-// Your logs will automatically include request context
-app.get('/', (req, res) => {
-    logger.info('Processing request');  // includes requestId, path, userId, etc.
-    res.send('Hello!');
+// Access context anywhere in your application
+app.get('/users', async (req, res) => {
+    const context = contextManager.getAll();
+    // Use context in database calls, logging, etc.
 });
 ```
 
 ## Core Concepts
 
-### Request ID (Trace ID)
+### Request Context
 
-Every request automatically gets a unique ID for tracing. The ID is:
-- Generated using UUID v4 if not provided
-- Read from request headers if present
-- Added to response headers
-- Automatically included in all logs
+Each request gets its own isolated context storage that:
+- Is automatically created at the start of a request
+- Is accessible anywhere in your application during that request
+- Is automatically cleaned up when the request ends
+- Maintains isolation between concurrent requests
+- Preserves context across async operations
 
-### Context Management
+### Request ID
 
-The library maintains an isolated context per request using AsyncLocalStorage. This means:
-- Context is automatically cleaned up after each request
-- No memory leaks
-- No cross-request contamination
-- Async operations maintain their original context
+Every request automatically gets a unique ID that:
+- Is generated using UUID v4 if not provided
+- Can be read from request headers
+- Is added to response headers
+- Is available in context as 'requestId'
+- Enables request tracing across your system
 
 ## Framework Integration
 
 ### Express
-
 ```javascript
 import { expressMiddleware } from 'request-ctxt';
 
 app.use(expressMiddleware({
-    // Optional: customize the request ID header (default: x-request-id)
     requestIdHeader: 'x-trace-id',
-    
-    // Optional: define what context to capture
     getContext: req => ({
         path: req.path,
-        method: req.method,
         userId: req.user?.id,
-        ip: req.ip,
-        userAgent: req.headers['user-agent']
+        // Add any request data you need
     })
 }));
 ```
 
 ### Fastify
-
 ```javascript
 import { fastifyMiddleware } from 'request-ctxt';
 
 fastify.addHook('onRequest', fastifyMiddleware({
-    requestIdHeader: 'x-trace-id',
-    getContext: request => ({
-        path: request.url,
-        method: request.method,
-        userId: request.user?.id,
-        ip: request.ip
+    getContext: req => ({
+        path: req.url,
+        userId: req.user?.id
     })
 }));
 ```
 
 ### Native HTTP
-
 ```javascript
 import { httpMiddleware } from 'request-ctxt';
 
 const middleware = httpMiddleware({
-    requestIdHeader: 'x-trace-id',
     getContext: req => ({
         path: req.url,
-        method: req.method,
         ip: req.socket.remoteAddress
     })
 });
-
-http.createServer((req, res) => {
-    middleware(req, res, () => {
-        // Your request handler
-    });
-});
 ```
 
-## Logger Integration
+## Using Context
 
-The library supports any logger but provides optimized formatting for popular logging libraries.
-
-### Console Logger (Default)
-
-```javascript
-import { logger } from 'request-ctxt';
-
-// Uses console by default
-logger.info('Hello world');  // includes all context
-```
-
-### Pino Integration
-
-```javascript
-import pino from 'pino';
-import { logger } from 'request-ctxt';
-
-const pinoLogger = pino({
-    level: 'debug',
-    timestamp: () => `,"time":"${new Date().toISOString()}"`,
-    formatters: {
-        level: (label) => ({ level: label })
-    }
-});
-
-logger.configure(pinoLogger);
-
-// Now logs will be handled by Pino with context
-logger.info('Hello world', { extra: 'data' });
-```
-
-Example output:
-```json
-{
-  "level": "info",
-  "time": "2023-10-20T12:34:56.789Z",
-  "requestId": "c2d8e86b-8b4b-4323-8d17-89a9c403cee9",
-  "path": "/api/users",
-  "method": "GET",
-  "userId": "123",
-  "msg": "Hello world",
-  "extra": "data"
-}
-```
-
-### Winston Integration
-
-```javascript
-import winston from 'winston';
-import { logger } from 'request-ctxt';
-
-const winstonLogger = winston.createLogger({
-    level: 'debug',
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-    ),
-    transports: [
-        new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.simple()
-            )
-        })
-    ]
-});
-
-logger.configure(winstonLogger);
-
-// Now logs will be handled by Winston with context
-logger.info('Hello world', { extra: 'data' });
-```
-
-Example output:
-```json
-{
-  "level": "info",
-  "message": "Hello world",
-  "timestamp": "2023-10-20T12:34:56.789Z",
-  "requestId": "c2d8e86b-8b4b-4323-8d17-89a9c403cee9",
-  "path": "/api/users",
-  "method": "GET",
-  "userId": "123",
-  "extra": "data"
-}
-```
-
-## API Reference
-
-### Middleware Options
-
-All middleware functions (express, fastify, http) accept these options:
-
-```typescript
-interface MiddlewareOptions {
-    // Header to use for request ID (default: 'x-request-id')
-    requestIdHeader?: string;
-    
-    // Function to extract context from request
-    getContext?: (req: Request) => Record<string, any>;
-}
-```
-
-### Logger Methods
-
-```typescript
-interface Logger {
-    // Log methods
-    info(message: string, extra?: Record<string, any>): void;
-    error(message: string, extra?: Record<string, any>): void;
-    warn(message: string, extra?: Record<string, any>): void;
-    debug(message: string, extra?: Record<string, any>): void;
-    trace(message: string, extra?: Record<string, any>): void;
-    fatal(message: string, extra?: Record<string, any>): void;
-    
-    // Configure logger instance
-    configure(logger: any): void;
-}
-```
-
-### Context Manager
-
-Direct access to the context manager if needed:
+Access context anywhere in your application:
 
 ```javascript
 import { contextManager } from 'request-ctxt';
@@ -255,51 +109,137 @@ import { contextManager } from 'request-ctxt';
 // Get all context
 const context = contextManager.getAll();
 
-// Get specific context value
+// Get specific value
 const requestId = contextManager.get('requestId');
 
 // Set context value
 contextManager.set('customKey', 'value');
 ```
 
-## Best Practices
+## Common Use Cases
 
-1. **Add Middleware Early**: Place the middleware as early as possible in your middleware chain to ensure all subsequent operations have access to the request context.
-
-2. **Use Meaningful Context**: While you can add any context, focus on information that's useful for debugging and tracing:
-   - Request path and method
-   - User ID or session ID
-   - IP address
-   - Important headers
-   - Business-specific identifiers
-
-3. **Error Handling**: Include error details in your logs:
+### Logging
 ```javascript
-try {
-    // Your code
-} catch (error) {
-    logger.error('Operation failed', {
-        error: error.message,
-        stack: error.stack
+const log = (level, message, extra = {}) => {
+    const context = contextManager.getAll();
+    logger[level]({
+        ...context,
+        ...extra,
+        message
     });
+};
+```
+
+### Database Auditing
+```javascript
+const createUser = async (userData) => {
+    const context = contextManager.getAll();
+    return db.users.create({
+        ...userData,
+        audit: {
+            requestId: context.requestId,
+            createdBy: context.userId
+        }
+    });
+};
+```
+
+### Metrics
+```javascript
+const recordMetric = (name, value, tags = {}) => {
+    const context = contextManager.getAll();
+    metrics.record(name, value, {
+        ...tags,
+        userId: context.userId,
+        path: context.path
+    });
+};
+```
+
+### Distributed Tracing
+```javascript
+const startSpan = (name) => {
+    const context = contextManager.getAll();
+    return tracer.startSpan(name, {
+        attributes: {
+            requestId: context.requestId,
+            userId: context.userId
+        }
+    });
+};
+```
+
+## API Reference
+
+### Middleware Options
+```typescript
+interface MiddlewareOptions {
+    // Header for request ID (default: 'x-request-id')
+    requestIdHeader?: string;
+    
+    // Extract context from request
+    getContext?: (req: Request) => Record<string, any>;
+}
+```
+
+### Context Manager
+```typescript
+interface ContextManager {
+    // Get all context
+    getAll(): Record<string, any>;
+    
+    // Get specific value
+    get(key: string): any;
+    
+    // Set value
+    set(key: string, value: any): void;
 }
 ```
 
 ## Examples
 
-Check out the [examples](./examples) directory for complete working examples using:
-- Express
-- Fastify
-- Native HTTP
-- Pino Logger
-- Winston Logger
+Check out the [examples](./examples) directory for complete working examples:
+
+### Framework Examples
+- Express integration
+- Fastify integration
+- Native HTTP integration
+
+### Use Case Examples
+- Logging integration (Console, Pino, Winston)
+- Database auditing with Sequelize
+- Metrics with Prometheus
+- Distributed tracing with OpenTelemetry
+- Error handling and monitoring
+- Authentication context
 
 Each example demonstrates:
 - Middleware setup
-- Logger configuration
-- Request handling
+- Context usage patterns
+- Integration techniques
+- Best practices
 - Error handling
-- Context propagation
+
+## Best Practices
+
+1. **Add Middleware Early**
+   - Place context middleware before other middleware
+   - Ensures context is available throughout request
+
+2. **Choose Context Carefully**
+   - Include data needed across the stack
+   - Consider performance impact
+   - Focus on cross-cutting concerns
+
+3. **Create Helper Functions**
+   - Wrap common operations
+   - Maintain consistent patterns
+   - Reduce boilerplate
+
+4. **Handle Errors**
+   - Include context in error reporting
+   - Maintain context in error middleware
+   - Clean up resources properly
 
 ## License
 
