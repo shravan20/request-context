@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import contextManager from '../context-manager';
+import contextManager from '../context-manager.js';
 
 const defaultOptions = {
     requestIdHeader: 'x-request-id',
@@ -20,7 +20,7 @@ function fastifyMiddleware(options = {}) {
             contextManager.set('requestId', requestId);
             contextManager.set('path', request.url);
             contextManager.set('method', request.method);
-            
+
             if (userId) {
                 contextManager.set('userId', userId);
             }

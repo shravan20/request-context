@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import contextManager from '../context-manager';
+import contextManager from '../context-manager.js';
 import { parse } from 'url';
 
 const defaultOptions = {
@@ -22,7 +22,7 @@ function httpMiddleware(options = {}) {
             contextManager.set('requestId', requestId);
             contextManager.set('path', parsedUrl.pathname);
             contextManager.set('method', req.method);
-            
+
             if (userId) {
                 contextManager.set('userId', userId);
             }

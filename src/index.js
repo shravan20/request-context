@@ -1,8 +1,8 @@
-import contextManager from './context-manager';
-import expressMiddleware from './middleware/express-middleware';
-import fastifyMiddleware from './middleware/fastify-middleware';
-import httpMiddleware from './middleware/http-middleware';
-import logger from './context-aware-logger';
+import contextManager from './context-manager.js';
+import expressMiddleware from './middleware/express-middleware.js';
+import fastifyMiddleware from './middleware/fastify-middleware.js';
+import httpMiddleware from './middleware/http-middleware.js';
+import logger from './context-aware-logger.js';
 
 export {
     contextManager,
