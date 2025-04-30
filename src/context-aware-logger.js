@@ -1,4 +1,5 @@
-import { getAll } from './context-manager.js';
+import contextManager from './context-manager.js';
+
 
 let baseLogger = console; // fallback if no logger configured
 let loggerType = 'console';
@@ -30,7 +31,7 @@ function formatForConsole(level, message, context) {
 }
 
 function logWithContext(level, message, extra = {}) {
-    const context = { ...getAll(), ...extra };
+    const context = { ...contextManager.getAll(), ...extra };
 
     let args;
     switch (loggerType) {

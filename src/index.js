@@ -11,3 +11,5 @@ export {
     httpMiddleware,
     logger
 };
+
+export default contextManager;
